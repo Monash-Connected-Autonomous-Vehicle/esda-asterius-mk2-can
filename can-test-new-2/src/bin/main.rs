@@ -5,11 +5,16 @@ use esp_hal::clock::CpuClock;
 use esp_hal::main;
 use esp_hal::time::{Duration, Instant};
 use esp_println::println;
+use esp_hal::{
+    delay::Delay,
+    twai::{self, filter::SingleStandardFilter, EspTwaiFrame, StandardId, TwaiMode},
+};
+use esp_hal::{peripheral};
+use nb::block;
+use esp_backtrace as _;
 
-#[panic_handler]
-fn panic(_: &core::panic::PanicInfo) -> ! {
-    loop {}
-}
+const IS_FIRST_SENDER: bool = true;
+
 
 #[main]
 fn main() -> ! {
@@ -17,10 +22,10 @@ fn main() -> ! {
     // esp_log::logger::init();
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
-    let _peripherals = esp_hal::init(config);
+    let _peripherals = esp_hal::init(esp_hal::Config::default());
 
-    println!("Hello world");
     loop {
+        println!("Hello world");
         let delay_start = Instant::now();
         while delay_start.elapsed() < Duration::from_millis(500) {}
     }
