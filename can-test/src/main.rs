@@ -3,8 +3,13 @@
 
 use embedded_can::{self, blocking::Can};
 use esp_backtrace as _;
-use esp_hal::{self, delay::Delay, gpio::{GpioPin, Input, Io, Level, Output, Pull}, peripheral, peripherals::TWAI0, prelude::*};
+use esp_hal::{self, delay::Delay, gpio::{GpioPin, Input, Io, Level, Output, Pull}, peripheral,
+    twai::{self, filter::SingleStandardFilter, EspTwaiFrame, StandardId, TwaiMode},
+};
 use nb::block;
+use esp_println::println;
+
+const IS_FIRST_SENDER: bool = true;
 
 const CAN_BAUDRATE: esp_hal::twai::BaudRate = esp_hal::twai::BaudRate::B1000K;
 
@@ -12,7 +17,8 @@ const CAN_BAUDRATE: esp_hal::twai::BaudRate = esp_hal::twai::BaudRate::B1000K;
 fn main() -> ! {
 
     esp_println::logger::init_logger_from_env();
-    
+
+    let peripherals = esp_hal::init(esp_hal::Config::default());
     let (rx_pin, tx_pin) = peripherals.GPIO2.split();
 
     const TWAI_BAUDRATE: twai::BaudRate = twai::BaudRate::B125K;
@@ -56,9 +62,11 @@ fn main() -> ! {
 
     let delay = Delay::new();
     loop {
+
+        println!("Hello world");
         // Wait for a frame to be received.
         let frame = block!(twai.receive()).unwrap();
-
+ 
         println!("Received a frame: {frame:?}");
         delay.delay_millis(250);
 
