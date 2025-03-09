@@ -8,7 +8,7 @@ use esp_hal::{self, delay::Delay, esp_riscv_rt::entry, gpio::{GpioPin, Input, Io
 use nb::block;
 use esp_println::println;
 
-const IS_FIRST_SENDER: bool = false;
+const IS_FIRST_SENDER: bool = true;
 
 const CAN_BAUDRATE: esp_hal::twai::BaudRate = esp_hal::twai::BaudRate::B1000K;
 
