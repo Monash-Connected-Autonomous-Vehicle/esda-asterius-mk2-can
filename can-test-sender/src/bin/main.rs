@@ -18,9 +18,11 @@ fn main() -> ! {
     esp_println::logger::init_logger_from_env();
 
     let peripherals = esp_hal::init(esp_hal::Config::default());
-    let (rx_pin, tx_pin) = peripherals.GPIO2.split();
+    // let (rx_pin, tx_pin) = peripherals.GPIO2.split();
+    let tx_pin = peripherals.GPIO4;
+    let rx_pin = peripherals.GPIO5; 
 
-    const TWAI_BAUDRATE: twai::BaudRate = twai::BaudRate::B125K;
+    const TWAI_BAUDRATE: twai::BaudRate = twai::BaudRate::B1000K;
 
     // !!! Use `new` when using a transceiver. `new_no_transceiver` sets TX to open-drain
     // Self-testing also works using the regular `new` function.
@@ -34,7 +36,7 @@ fn main() -> ! {
         tx_pin,
         TWAI_BAUDRATE,
         TwaiMode::Normal,
-    );
+    ).into_async();
 
     // Partially filter the incoming messages to reduce overhead of receiving
     // undesired messages. Note that due to how the hardware filters messages,
@@ -55,7 +57,7 @@ fn main() -> ! {
         // Send a frame to the other ESP
         // Use `new_self_reception` if you want to use self-testing.
         let frame = EspTwaiFrame::new(StandardId::ZERO, &[1, 2, 3]).unwrap();
-        block!(twai.transmit(&frame)).unwrap();
+        twai.transmit(&frame).unwrap();
         println!("Sent a frame");
     }
 
@@ -64,15 +66,17 @@ fn main() -> ! {
 
         println!("Hello world");
         // Wait for a frame to be received.
-        let frame = block!(twai.receive()).unwrap();
+        // let frame = block!(twai.receive()).unwrap();
  
         // println!("Received a frame: {frame:?}");
         delay.delay_millis(250);
 
         let frame = EspTwaiFrame::new(StandardId::ZERO, &[1, 2, 3]).unwrap();
         // Transmit a new frame back to the other ESP
-        block!(twai.transmit(&frame)).unwrap();
-        println!("Sent a frame");
+        twai.transmit(&frame);
+        println!("Sent a frame {:?}", frame);
+
+
     }
     
     // loop{
@@ -80,3 +84,4 @@ fn main() -> ! {
     // }
     
 }
+

@@ -69,6 +69,7 @@ dependencies = [
  "esp-backtrace",
  "esp-hal",
  "esp-println",
+ "esp32c3",
  "nb 1.1.0",
 ]
 
